@@ -1,0 +1,54 @@
+// This program demonstrates all LoLa features:
+
+var name;
+
+var name = 10;
+
+val = null;
+val = -1;
+val = -10.0;
+val = true;
+val = [ 1, 2, 3 ];
+val = "Hallo, Welt!";
+val = FreeFunction();
+val = obj.Function(1,2,"hi");
+val = 10 + 20 * 30 + 40;
+val = (10 + 20) * (30 + 40);
+
+function myfun(a,b)
+{
+	
+}
+
+if(a > b)
+{
+
+}
+
+if(a < b)
+{
+
+}
+else
+{
+
+}
+
+for(x in array)
+{
+
+}
+
+for(x in range(1,10))
+{
+
+}
+
+while(true)
+{
+	
+}
+
+// Remote Example:
+var obj = Connect("MyServer");
+obj.Tap(GetName());

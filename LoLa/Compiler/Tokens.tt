@@ -1,0 +1,23 @@
+﻿<#@ template debug="false" hostspecific="true" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ assembly name="$(SolutionDir)/../psilang/CompilerKit/bin/Debug/CompilerKit.dll" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Text.RegularExpressions" #>
+<#@ import namespace="System.IO" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".gen.cs" #>
+
+using System;
+using System.IO;
+using System.Text.RegularExpressions;
+using CompilerKit;
+
+namespace LoLa.Compiler
+{
+	<#
+	var prefix = "LoLa";
+	var tokens = CompilerKit.TokenDefinitionFile.Load(Host.ResolvePath("LoLa.tok"));
+	#>
+	<#= CompilerKit.Generator.Tokenizer(prefix, tokens) #>
+}

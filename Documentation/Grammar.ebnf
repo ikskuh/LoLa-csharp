@@ -1,0 +1,27 @@
+program     := { <function> | <statement> } ;
+function    := 'function' <name> '(' <plist> ')' <body> ;
+plist       := <name> { ',' <name> } ;
+body        := { <statement> } ;
+statement   := <decl> | <expression> | <ass> | <for> | <while> | <conditional> ;
+decl        := 'var' <name> [ '=' <expr0> ] ';' ;
+ass         := <lvalue> '=' <expr_0> ;
+while       := 'while' '(' <expr0> ')' <body> ;
+for         := 'for' '(' <name> 'in' <expr0> ')' <body> ;
+conditional := 'if' '(' <expr0> ')' <body> [ 'else' <body> ] ;
+return      := 'return' [ <expr0> ] ';' ;
+expression  := <expr0> ';' ;
+
+expr_0 := <expr_1> { ( '==' | '!=' | '>=' | '<=' | '>' | '<' ) <expr_1> };
+expr_1 := <expr_2> { ( '*' | '/' | '%' | 'and' | 'or' ) <expr_2> } ;
+expr_2 := <expr_3> { ( '+' | '-' ) <expr_3> } ;
+expr_3 := [ '-' | 'not' ] <expr_4> ;
+expr_4 := '(' <expr0> ')' | <rvalue> | <lvalue>;
+
+lvalue      := <name> [ '[' <expr0> ']' ] ;
+rvalue      := <number> | <string> | <array> | <call>;
+array       := '[' <arglist> ']' ;
+call        := <name> [ '.' <name> ] '(' <arglist> ')' ;
+arglist     := <expr0> { ',' <expr0> };
+number      := `[-+]?\d+(\.\d+)?`
+string      := `"[^"]+"`
+name        := `\w+`

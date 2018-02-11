@@ -1,0 +1,114 @@
+; Variable Access
+	store name ; Loads variable from the current scope
+	load name  ; Destroys variable from the current scope
+
+; Literals
+	push_num 10
+	push_null
+	push_true
+	push_false
+	push_str "Hallo, Welt!";
+
+; [ 1, 2, 3 ];
+	push_num 3
+	push_num 2
+	push_num 1
+	array_pack 3 ; pop 3 elements first-to-last and push an array
+	
+	; FreeFunction()
+	call FreeFunction 0
+	pop ; Destroy return value
+
+; obj.Function(1,2,"hi");
+	push_str "hi"
+	push_num 2
+	push_num 1
+	push obj
+	callobj Function 3
+
+; 10 + 20 * 30 + 40;
+	push 10
+	push 20
+	push 30
+	mul
+	add
+	push 40
+	add
+
+; (10 + 20) * (30 + 40)
+	push 10
+	push 20
+	add
+	push 30
+	push 40
+	mul
+
+; if(a > b) { }
+	load a
+	load b
+	greater
+	jmp_false body_end
+body_true:
+	; true body
+body_end:
+	
+
+; if(a < b) { } else { }
+	load a
+	load b
+	less
+	jmp_false body_false
+body_true:
+	; true body
+	jmp body_end
+body_false:
+	; false body
+body_end:
+
+; for(x in array) { }
+	load array
+	make_iterator ; pops array, pushes array iterator value
+body_start:
+	iterator_next ; peeks iterator, pushes value, then true when there is data, otherwise false
+	jmp_false body_end
+	store x ; store value into iterator
+	; loop body
+	
+	jmp body_start
+body_end:
+	pop ; destroy iterator
+	; loop end
+
+; while(true) { }
+label:
+	jmp label
+
+
+; Remote Example:
+; var obj = Connect("MyServer");
+; obj.Tap(GetName());
+	push_str "MyServer"
+	call Connect 1
+	store obj
+	
+	call GetName 0
+	load obj
+	callobj Tap 1
+	pop
+
+
+; function myfun(a,b)
+; {
+; 	print(a);
+; 	print(b);
+; }
+	load a
+	call print 1
+	pop
+	
+	load b
+	call print 1
+	pop
+	
+	push_null
+	return

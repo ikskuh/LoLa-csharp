@@ -1,0 +1,177 @@
+
+// ==========================================================================
+//  GPPG error listing for yacc source file <LoLa.y - 10.02.2018 17:39:23>
+// ==========================================================================
+//  Version:  1.5.2
+//  Machine:  RECHENKNECHT-MS
+//  DateTime: 10.02.2018 17:39:31
+//  UserName: Felix
+// ==========================================================================
+
+
+%start program
+
+%parsertype Parser
+%tokentype LoLaTokenType
+%visibility public
+
+%output="Parser.cs"
+
+%YYSTYPE AstNode
+
+// Brackets
+%token <Token> CURLY_O, CURLY_C, ROUND_O, ROUND_C, SQUARE_O, SQUARE_C
+
+// Keywords
+%token <String> VAR, FOR, WHILE, IF, ELSE, FUNCTION
+%token <String> BREAK, CONTINUE, RETURN, IN
+
+// Operators
+%left <String> LEQUAL, GEQUAL, EQUALS, DIFFERS, LESS, MORE
+%left <String> IS, DOT, COMMA, TERMINATOR
+%left <String> PLUS, MINUS, MULT, DIV, MOD, AND, OR, INVERT
+%token <String> IDENT
+
+// Literals
+%token <String> NUMBER, STRING
+
+// lexer ignored tokens:
+%token Comment,	LongComment, Whitespace
+
+%namespace LoLa.Compiler
+
+%type <Program> program
+%type <Statement> statement
+%type <Function> function
+%type <Statements> stmtlist body decl ass for while conditional expression
+%type <Expression> expr_0 expr_1 expr_2 expr_3 expr_4
+%type <NameList> plist
+%type <RValue> rvalue call array
+%type <LValue> lvalue
+%type <String> expr_0_op expr_1_op expr_2_op expr_3_op
+%type <Expressions> arglist 
+
+%using LoLa.Compiler.AST;
+
+%%
+
+program		: /* empty */								{ $$ = new Program(); }
+			| program function 							{ $$ = $1; $$.Functions.Add($2); }
+			| program statement 						{ $$ = $1; $$.Statements.Add($2); }
+			;
+
+function	: FUNCTION IDENT ROUND_O plist ROUND_C body 
+			{
+				$$ = new AST.Function();
+				$$.Name = $2;
+				$$.Parameters = $4;
+				$$.Statements = $6;
+			}
+			| FUNCTION IDENT ROUND_O ROUND_C body 
+			{
+				$$ = new AST.Function();
+				$$.Name = $2;
+				$$.Parameters = new List<string>();
+				$$.Statements = $5;
+			}
+			;
+
+plist       : IDENT
+			{ 
+				$$ = new List<string>(); 
+				$$.Add($1);
+			}
+			| plist COMMA IDENT
+			{
+				$$ = $1;
+				$$.Add($3);
+			}
+			;
+
+body		: CURLY_O stmtlist CURLY_C					{ $$ = $2; }
+			;
+
+stmtlist	: /* */										{ $$ = new List<AST.Statement>();  }
+			| stmtlist statement						{ $$ = $1; $$.Add($2); }
+			;
+
+statement	: decl | ass | for | while | conditional | expression;
+
+decl		: VAR IDENT IS expr_0 TERMINATOR			{ $$ = new Declaration($2, $4); }
+			| VAR IDENT TERMINATOR						{ $$ = new Declaration($2); }
+			;
+
+ass			: lvalue IS expr_0 TERMINATOR				{ $$ = new Assignment($1, $3); }
+			;
+
+for			: FOR ROUND_O IDENT IN  ROUND_C
+
+expression	: expr_0 TERMINATOR
+//^^^^^^^^
+// Error: Syntax error, unexpected anchoredSymbol
+// ----------------------------------------------
+			;
+			
+expr_0_op	: EQUALS|DIFFERS|LEQUAL|GEQUAL|MORE|LESS;
+expr_0		: expr_0 expr_0_op expr_0					{ $$ = new BinaryOperator($2, $1, $3); }
+			| expr_1
+			;
+
+
+expr_1_op	: MULT | DIV | MOD | AND | OR ;
+expr_1		: expr_1 expr_1_op expr_1					{ $$ = new BinaryOperator($2, $1, $3); }
+			| expr_2
+			;
+
+		
+expr_2_op	: PLUS | MINUS;	
+expr_2		: expr_2 expr_2_op expr_2					{ $$ = new BinaryOperator($2, $1, $3); }
+			| expr_3
+			;
+
+
+expr_3_op	: MINUS | INVERT;
+expr_3		: expr_3_op expr_3							{ $$ = new UnaryOperator($1, $2); }
+			| expr_4
+			;
+
+
+expr_4		: ROUND_O expr_0 ROUND_C					{ $$ = $2; }
+			| rvalue
+			| lvalue
+			;
+
+rvalue		: call
+			| array
+			| STRING									{ $$ = new AST.Literal($1); }
+			| NUMBER									{ $$ = new AST.Literal(Convert.ToDouble($1, CultureInfo.InvariantCulture)); }
+			;
+
+call		: IDENT DOT IDENT ROUND_O ROUND_C			{ $$ = new FunctionCall($1, $3); }
+			| IDENT DOT IDENT ROUND_O arglist ROUND_C	{ $$ = new FunctionCall($1, $3, $5); }
+			| IDENT ROUND_O ROUND_C						{ $$ = new FunctionCall($1); }
+			| IDENT ROUND_O arglist ROUND_C				{ $$ = new FunctionCall($1, $3); }
+			;
+
+array		: SQUARE_O SQUARE_C							{ $$ = new ArrayLiteral(); }
+			| SQUARE_O arglist SQUARE_C					{ $$ = new ArrayLiteral($2); }
+			;
+
+arglist		: arglist COMMA expression					{ $$ = $1; $$.Add($3); }
+			| expression								{ $$ = new List<AST.Expression>(); $$.Add($1); }
+			;
+
+lvalue		: IDENT SQUARE_O expr_0 SQUARE_C			{ $$ = new ArrayIndexer($1, $3); }
+			| IDENT										{ $$ = new AST.VariableRef($1); }
+			;
+
+%%
+
+public Parser(Lexer lexer) : base(lexer) 
+{ 
+	
+}
+
+public Program Result => this.CurrentSemanticValue.Program;
+// ==========================================================================
+

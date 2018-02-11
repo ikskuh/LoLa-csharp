@@ -1,0 +1,112 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{4E9B8C3B-E620-4F15-BD7E-2496C6B645F2}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>LoLa</RootNamespace>
+    <AssemblyName>LoLa</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;EXPORT_GPPG</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+    <CustomCommands>
+      <CustomCommands>
+        <Command>
+          <type>BeforeBuild</type>
+          <command>${SolutionDir}/Tools/GPPG/Gppg.exe LoLa.y</command>
+          <workingdir>${ProjectDir}/Compiler/</workingdir>
+        </Command>
+      </CustomCommands>
+    </CustomCommands>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <DefineConstants>EXPORT_GPPG</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Compiler\AST\AuxStatements.cs" />
+    <Compile Include="Compiler\AST\ControlFlow.cs" />
+    <Compile Include="Compiler\AST\EvaluationEnvironment.cs" />
+    <Compile Include="Compiler\AST\Expression.cs" />
+    <Compile Include="Compiler\AST\Function.cs" />
+    <Compile Include="Compiler\AST\Program.cs" />
+    <Compile Include="Compiler\AST\Statement.cs" />
+    <Compile Include="Compiler\CodeWriter.cs" />
+    <Compile Include="Compiler\Label.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="IL\Instruction.cs" />
+    <Compile Include="IL\ScriptFunction.cs" />
+    <Compile Include="IL\Instructions\Instructions.cs" />
+    <Compile Include="Compiler\Compiler.cs" />
+    <Compile Include="Compiler\Tokens.gen.cs">
+      <DependentUpon>Tokens.tt</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="Compiler\Parser.cs" />
+    <Compile Include="..\Tools\GPPG\ShiftReduceParserCode.cs">
+      <Link>Compiler\ShiftReduceParserCode.cs</Link>
+    </Compile>
+    <Compile Include="Compiler\AstNode.cs" />
+    <Compile Include="Compiler\Lexer.cs" />
+    <Compile Include="Runtime\Array.cs" />
+    <Compile Include="Runtime\IObject.cs" />
+    <Compile Include="Runtime\Object.cs" />
+    <Compile Include="Runtime\Function.cs" />
+    <Compile Include="Runtime\NativeFunction.cs" />
+    <Compile Include="Runtime\Scope.cs" />
+    <Compile Include="Runtime\Type.cs" />
+    <Compile Include="Runtime\Value.cs" />
+    <Compile Include="Runtime\Variable.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Compiler\LoLa.tok" />
+    <None Include="Compiler\LoLa.y" />
+    <None Include="Compiler\Tokens.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Tokens.gen.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\psilang\CompilerKit\CompilerKit.csproj">
+      <Project>{8EC1C24B-1017-4AC1-BAD1-297EB992C2F5}</Project>
+      <Name>CompilerKit</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ProjectExtensions>
+    <MonoDevelop>
+      <Properties>
+        <Policies>
+          <DotNetNamingPolicy DirectoryNamespaceAssociation="PrefixedHierarchical" ResourceNamePolicy="FileFormatDefault" />
+        </Policies>
+      </Properties>
+    </MonoDevelop>
+  </ProjectExtensions>
+  <PropertyGroup>
+    <PreBuildEvent>cd $(ProjectDir)/Compiler/
+$(SolutionDir)/Tools/GPPG/Gppg.exe LoLa.y</PreBuildEvent>
+  </PropertyGroup>
+</Project>

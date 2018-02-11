@@ -1,0 +1,74 @@
+﻿# LoLa Tokens, required by LoLa.y
+
+# Comments
+Comment                := \/\/.*
+LongComment:Singleline := \/\*.*?\*\/
+Whitespace             := \s+
+
+# Brackets
+CURLY_O    := \{
+CURLY_C    := \}
+ROUND_O    := \(
+ROUND_C    := \)
+SQUARE_O   := \[
+SQUARE_C   := \]
+
+# Keywords
+VAR        := \bvar\b
+FOR        := \bfor\b
+WHILE      := \bwhile\b
+IF         := \bif\b
+ELSE       := \belse\b
+FUNCTION   := \bfunction\b
+IN         := \bin\b
+
+# Control flow control
+BREAK      := \bbreak\b
+CONTINUE   := \bcontinue\b
+RETURN     := \breturn\b
+
+# Operators
+
+# Comparison operators
+LEQUAL     := \<\=
+GEQUAL     := \>\=
+EQUALS     := \=\=
+DIFFERS    := \!\=
+LESS       := \<
+MORE       := \>
+
+IS         := \=
+
+DOT        := \.
+COMMA      := \,
+TERMINATOR := \;
+
+# Arithmetic operators
+PLUS       := \+
+MINUS      := \-
+MULT       := \*
+MOD        := \%
+DIV        := \/
+
+# Logic operators
+AND        := \band\b
+OR         := \bor\b
+INVERT     := \bnot\b
+
+# Type Literals
+
+# negative numbers are made via operator
+NUMBER     := \d+(\.\d+)?
+
+STRING     := "(?:\\"|.)*?"
+
+# Must not start with a number, but is allowed to any word character
+IDENT      := [\w-[\d]]\w*
+
+# Post Processings
+
+PP(Comment)     := (text) => null
+PP(LongComment) := (text) => null
+PP(Whitespace)  := (text) => null
+
+PP(STRING)      := (text) => text.Substring(1, text.Length - 2)
