@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LoLa.Runtime;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,7 +8,7 @@ using System.Windows.Forms;
 
 namespace LoLa.Demo
 {
-    public class BasicComputer : LoLa.Object
+    public class BasicComputer : LoLa.Runtime.LoLaObject
     {
         private readonly TerminalForm display;
 

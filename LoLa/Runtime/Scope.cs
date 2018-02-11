@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System;
-namespace LoLa
+namespace LoLa.Runtime
 {
     public class Scope
     {

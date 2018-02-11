@@ -1,5 +1,5 @@
 ﻿using System;
-namespace LoLa
+namespace LoLa.Runtime
 {
 	public enum Type
 	{

@@ -73,7 +73,7 @@ namespace LoLa.Compiler.AST
             if (this.Value != null)
                 this.Value.Emit(writer);
             else
-                writer.Push(LoLa.Value.Null);
+                writer.Push(LoLa.Runtime.Value.Null);
             writer.Return();
         }
 

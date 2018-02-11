@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LoLa.Runtime;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,17 +11,17 @@ namespace LoLa.Compiler.AST
     {
         public Program()
         {
-            this.Name = Object.TapFunctionName;
+            this.Name = LoLa.Runtime.LoLaObject.TapFunctionName;
         }
 
         public List<Function> Functions = new List<Function>();
 
         public T Instantiate<T>()
-            where T : Object, new()
+            where T : LoLa.Runtime.LoLaObject, new()
         {
             var obj = new T();
 
-            obj.RegisterFunction(Object.TapFunctionName, this.Compile(obj, true));
+            obj.RegisterFunction(LoLa.Runtime.LoLaObject.TapFunctionName, this.Compile(obj, true));
 
             foreach (var fun in this.Functions)
                 obj.RegisterFunction(fun.Name, fun.Compile(obj, false));
@@ -28,11 +29,11 @@ namespace LoLa.Compiler.AST
             return obj;
         }
 
-        public Value Evaluate(Object environment)
+        public LoLa.Runtime.FunctionCall Evaluate(LoLa.Runtime.LoLaObject environment)
         {
             var obj = new EvaluationEnvironment(environment);
 
-            obj.RegisterFunction(Object.TapFunctionName, this.Compile(obj, true));
+            obj.RegisterFunction(LoLa.Runtime.LoLaObject.TapFunctionName, this.Compile(obj, true));
 
             foreach (var fun in this.Functions)
                 obj.RegisterFunction(fun.Name, fun.Compile(obj, false));

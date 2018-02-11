@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LoLa.Runtime;
+using System;
 using System.Collections.Generic;
 
 namespace LoLa.IL
@@ -13,6 +14,6 @@ namespace LoLa.IL
 		/// <param name="stack">Stack.</param>
 		/// <param name="scope">Scope.</param>
 		/// <param name="ip>Instruction Pointer</param>
-		public abstract void Execute(Stack<Value> stack, Scope scope, ref int ip);
+		public abstract void Execute(Stack<Value> stack, Scope scope, ref int ip, ref LoLa.Runtime.FunctionCall branch);
 	}
 }

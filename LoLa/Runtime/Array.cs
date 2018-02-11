@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 
-namespace LoLa
+namespace LoLa.Runtime
 {
 	public sealed class Array : IList<Value>
 	{

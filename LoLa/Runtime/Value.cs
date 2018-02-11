@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-namespace LoLa
+namespace LoLa.Runtime
 {
 	public struct Value : IEquatable<Value>
 	{
@@ -59,7 +59,7 @@ namespace LoLa
 		
 		public Type Type => this.type;
 		
-		public Object ToObject() => (Object)value;
+		public LoLaObject ToObject() => (LoLaObject)value;
 
 		public Array ToArray() => (Array)value;
 
@@ -83,12 +83,15 @@ namespace LoLa
 		public static implicit operator Value(string val) => new Value(val);
 		public static implicit operator Value(double val) => new Value(val);
 		public static implicit operator Value(Array val) => new Value(val);
-		public static implicit operator Value(Object val) => new Value(val);
+		public static implicit operator Value(LoLaObject val) => new Value(val);
 		
 		public static explicit operator bool(Value val) => val.ToBoolean();
 		public static explicit operator string(Value val) => val.ToString();
 		public static explicit operator double(Value val) => val.ToNumber();
 		public static explicit operator Array(Value val) => val.ToArray();
-		public static explicit operator Object(Value val) => val.ToObject();
-	}
+		public static explicit operator LoLaObject(Value val) => val.ToObject();
+
+        public static bool operator ==(Value lhs, Value rhs) => lhs.Equals(rhs);
+        public static bool operator !=(Value lhs, Value rhs) => !lhs.Equals(rhs);
+    }
 }

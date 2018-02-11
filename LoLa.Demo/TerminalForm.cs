@@ -15,7 +15,6 @@ namespace LoLa.Demo
         private int adjustY = 0;
         private int padding = 3;
 
-        private static readonly PrivateFontCollection fontCol;
         private static readonly FontFamily fontFamily;
 
         static TerminalForm()

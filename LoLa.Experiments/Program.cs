@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using LoLa.Compiler;
 using LoLa.IL;
+using LoLa.Runtime;
 
 namespace LoLa.Experiments
 {
@@ -26,7 +27,7 @@ namespace LoLa.Experiments
 
             var pgm = parser.Result;
 
-            var env = pgm.Instantiate<Object>();
+            var env = pgm.Instantiate<LoLaObject>();
 
             env.RegisterFunction("Print", new NativeFunction(arglist =>
             {
@@ -37,17 +38,23 @@ namespace LoLa.Experiments
             env.RegisterFunction("CreateCounter", new NativeFunction(arglist =>
             {
                 var counter = 0;
-                var obj = new Object();
+                var obj = new LoLaObject();
                 obj.RegisterFunction("GetValue", new NativeFunction(a => counter));
                 obj.RegisterFunction("Increment", new NativeFunction(a => ++counter));
                 obj.RegisterFunction("Decrement", new NativeFunction(a => --counter));
                 return obj;
             }));
 
-            env.Tap();
+            var exe = env.Tap();
 
-            Console.WriteLine("Success!");
+            int cnt;
+            for (cnt = 0; cnt < 10000 && exe.Next(); cnt++) ;
 
+            Console.WriteLine("Finished in {0} steps!", cnt);
+
+            if (exe.Result != Value.Null)
+                Console.WriteLine("Result = {0}", exe.Result);
+            
             Console.ReadLine();
         }
     }

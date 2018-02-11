@@ -1,8 +1,10 @@
-﻿namespace LoLa.Compiler.AST
+﻿using LoLa.Runtime;
+
+namespace LoLa.Compiler.AST
 {
-    public sealed class EvaluationEnvironment : Object
+    public sealed class EvaluationEnvironment : LoLaObject
     {
-        public EvaluationEnvironment(Object environment) :
+        public EvaluationEnvironment(LoLaObject environment) :
             base(environment)
         {
 

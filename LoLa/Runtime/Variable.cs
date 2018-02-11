@@ -1,4 +1,4 @@
-﻿namespace LoLa
+﻿namespace LoLa.Runtime
 {
     public sealed class Variable
     {

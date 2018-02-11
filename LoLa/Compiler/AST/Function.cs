@@ -15,7 +15,7 @@ namespace LoLa.Compiler.AST
 
         public List<Statement> Statements = new List<Statement>();
 
-        public ScriptFunction Compile(Object env, bool isTapFunction)
+        public ScriptFunction Compile(LoLa.Runtime.LoLaObject env, bool isTapFunction)
         {
             var code = new CodeWriter();
             foreach (var item in this.Statements)

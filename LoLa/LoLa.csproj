@@ -69,8 +69,9 @@
     <Compile Include="Compiler\AstNode.cs" />
     <Compile Include="Compiler\Lexer.cs" />
     <Compile Include="Runtime\Array.cs" />
+    <Compile Include="Runtime\FunctionCall.cs" />
     <Compile Include="Runtime\IObject.cs" />
-    <Compile Include="Runtime\Object.cs" />
+    <Compile Include="Runtime\LoLaObject.cs" />
     <Compile Include="Runtime\Function.cs" />
     <Compile Include="Runtime\NativeFunction.cs" />
     <Compile Include="Runtime\Scope.cs" />

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 using LoLa.IL;
 using LoLa.IL.Instructions;
+using LoLa.Runtime;
 
 namespace LoLa.Compiler
 {

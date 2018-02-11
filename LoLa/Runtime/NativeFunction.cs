@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Linq;
-namespace LoLa
+using LoLa.Runtime;
+
+namespace LoLa.Runtime
 {
 	public delegate Value NativeFunctionDelegate(Value[] args);
 
@@ -19,13 +21,28 @@ namespace LoLa
 				throw new ArgumentNullException(nameof(fun));
 			this.fun = fun;
 		}
-		
-		protected override Value Execute(Value[] args)
-		{
-			return this.fun(args);
-		}
-		
-		/*
+
+        public override FunctionCall Call(Value[] args) => new SynchronousCaller(this, args);
+
+        class SynchronousCaller : FunctionCall
+        {
+            private NativeFunction nativeFunction;
+            private Value[] args;
+
+            public SynchronousCaller(NativeFunction nativeFunction, Value[] args)
+            {
+                this.nativeFunction = nativeFunction;
+                this.args = args;
+            }
+
+            public override bool Next()
+            {
+                this.Result = this.nativeFunction.fun(this.args);
+                return false;
+            }
+        }
+
+        /*
 		
 		public NativeFunction(Delegate fun) : base(fun.Method.GetParameters().Length)
 		{
@@ -86,5 +103,5 @@ namespace LoLa
 			
 		}
 		*/
-	}
+    }
 }
