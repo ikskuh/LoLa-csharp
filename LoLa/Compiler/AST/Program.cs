@@ -4,41 +4,49 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using LoLa.IL;
 
 namespace LoLa.Compiler.AST
 {
-    public sealed class Program : Function
-    {
-        public Program()
-        {
-            this.Name = LoLa.Runtime.LoLaObject.TapFunctionName;
-        }
+	public sealed class Program : Function
+	{
+		public Program()
+		{
+			this.Name = LoLa.Runtime.LoLaObject.TapFunctionName;
+		}
 
-        public List<Function> Functions = new List<Function>();
+		public List<Function> Functions = new List<Function>();
 
-        public T Instantiate<T>()
-            where T : LoLa.Runtime.LoLaObject, new()
-        {
-            var obj = new T();
+		public void InstantiateInto(LoLaObject obj, bool removePreviousScripts)
+		{
+			if (removePreviousScripts)
+			{
+				foreach (var fun in obj.Functions.Where(f => f.Value is ScriptFunction).ToArray())
+					obj.RemoveFunction(fun.Key);
+			}
+			obj.RegisterFunction(LoLa.Runtime.LoLaObject.TapFunctionName, this.Compile(obj, true));
+			foreach (var fun in this.Functions)
+				obj.RegisterFunction(fun.Name, fun.Compile(obj, false));
+		}
 
-            obj.RegisterFunction(LoLa.Runtime.LoLaObject.TapFunctionName, this.Compile(obj, true));
+		public T Instantiate<T>()
+			where T : LoLa.Runtime.LoLaObject, new()
+		{
+			var obj = new T();
+			InstantiateInto(obj, true);
+			return obj;
+		}
 
-            foreach (var fun in this.Functions)
-                obj.RegisterFunction(fun.Name, fun.Compile(obj, false));
-           
-            return obj;
-        }
+		public LoLa.Runtime.FunctionCall Evaluate(LoLa.Runtime.LoLaObject environment)
+		{
+			var obj = new EvaluationEnvironment(environment);
 
-        public LoLa.Runtime.FunctionCall Evaluate(LoLa.Runtime.LoLaObject environment)
-        {
-            var obj = new EvaluationEnvironment(environment);
+			obj.RegisterFunction(LoLa.Runtime.LoLaObject.TapFunctionName, this.Compile(obj, true));
 
-            obj.RegisterFunction(LoLa.Runtime.LoLaObject.TapFunctionName, this.Compile(obj, true));
+			foreach (var fun in this.Functions)
+				obj.RegisterFunction(fun.Name, fun.Compile(obj, false));
 
-            foreach (var fun in this.Functions)
-                obj.RegisterFunction(fun.Name, fun.Compile(obj, false));
-
-            return obj.Tap();
-        }
-    }
+			return obj.Tap();
+		}
+	}
 }

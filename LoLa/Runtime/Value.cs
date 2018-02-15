@@ -67,6 +67,8 @@ namespace LoLa.Runtime
 
 		public double ToNumber() => (double)value;
 		
+		public int ToInteger() => (int)this.ToNumber();
+		
 		public IEnumerator<Value> ToEnumerator() => (IEnumerator<Value>)value;
 
 		public override string ToString() => value?.ToString() ?? "null";

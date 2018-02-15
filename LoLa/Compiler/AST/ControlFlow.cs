@@ -98,6 +98,8 @@ namespace LoLa.Compiler.AST
             var bodyStart = new Label();
             var bodyEnd = new Label();
             
+            writer.DeclareVariable(this.Variable);
+            
             this.Array.Emit(writer);
 
             writer.MakeIterator(); // pops array, pushes array iterator value

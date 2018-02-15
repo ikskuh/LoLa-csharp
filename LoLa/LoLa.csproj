@@ -78,6 +78,7 @@
     <Compile Include="Runtime\Type.cs" />
     <Compile Include="Runtime\Value.cs" />
     <Compile Include="Runtime\Variable.cs" />
+    <Compile Include="Runtime\AsyncNativeFunction.cs" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
@@ -106,8 +107,4 @@
       </Properties>
     </MonoDevelop>
   </ProjectExtensions>
-  <PropertyGroup>
-    <PreBuildEvent>cd $(ProjectDir)/Compiler/
-$(SolutionDir)/Tools/GPPG/Gppg.exe LoLa.y</PreBuildEvent>
-  </PropertyGroup>
 </Project>

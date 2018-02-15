@@ -3,10 +3,10 @@
 // (see accompanying GPPGcopyright.rtf)
 
 // GPPG version 1.5.2
-// Machine:  RECHENKNECHT-MS
-// DateTime: 11.02.2018 19:49:40
-// UserName: Felix
-// Input file <LoLa.y - 10.02.2018 19:38:43>
+// Machine:  denkplatte
+// DateTime: 02/13/2018 19:36:51
+// UserName: felix
+// Input file <LoLa.y - 02/13/2018 07:44:53>
 
 // options: lines
 
