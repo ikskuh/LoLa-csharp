@@ -41,52 +41,51 @@ namespace LoLa.IL
 
         private class Caller : FunctionCall
         {
-            private readonly Scope scope;
-            private readonly Stack<Value> stack = new Stack<Value>();
-            private int ip = 0;
+            private readonly Instruction.Context context;
             private readonly IL.Instruction[] code;
-
-            private FunctionCall subcall = null;
 
             public Caller(IL.ScriptFunction fun, Value[] args)
             {
+                Scope scope;
                 if (fun.IsTapFunction)
-                    this.scope = fun.Environment;
+                    scope = fun.Environment;
                 else
-                    this.scope = new Scope(fun.Environment);
-
+                    scope = new Scope(fun.Environment);
+                
                 for (int i = 0; i < fun.Parameters.Count; i++)
                 {
                     var param = fun.Parameters[i];
                     scope.DeclareVariable(param, args[i]);
                 }
 
+                this.context = new Instruction.Context(scope);
+
                 this.code = fun.Code.ToArray();
             }
 
             public override bool Next()
             {
-                if(subcall != null)
+                if(context.Branch != null)
                 {
-                    if (subcall.Next())
+                    if (context.Branch.Next())
                         return true;
-                    stack.Push(subcall.Result);
-                    subcall = null;
+                    context.Stack.Push(context.Branch.Result);
+                    context.LeaveFunction();
                 }
 
-                if (ip >= this.code.Length)
+                if (context.IP >= this.code.Length)
                     return false;
                 
-                var instr = this.code[ip];
-                ip += 1;
-                instr.Execute(stack, scope, ref ip, ref this.subcall);
+                var instr = this.code[context.IP];
+                context.IP += 1;
+                instr.Execute(context);
 
-                if (ip < 0)
+                if (context.IP < 0)
                 {
-                    this.Result = stack.Pop();
+                    this.Result = context.Stack.Pop();
                     return false;
                 }
-                if (ip >= this.code.Length)
+                if (context.IP >= this.code.Length)
                 {
                     this.Result = Value.Null;
                     return false;

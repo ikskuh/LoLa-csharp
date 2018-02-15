@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{BE4F2623-7987-46BD-8996-9F271D1D1BA6}</ProjectGuid>
+    <ProjectGuid>{ED165D1A-CD71-4296-AD57-8ADB21235718}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>LoLa.Demo</RootNamespace>
     <AssemblyName>LoLa.Demo</AssemblyName>
@@ -48,6 +48,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BasicComputer.cs" />
+    <Compile Include="CodeEditorForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="CodeEditorForm.Designer.cs">
+      <DependentUpon>CodeEditorForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -59,6 +65,9 @@
     <Compile Include="TerminalForm.cs">
       <SubType>Form</SubType>
     </Compile>
+    <EmbeddedResource Include="CodeEditorForm.resx">
+      <DependentUpon>CodeEditorForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>

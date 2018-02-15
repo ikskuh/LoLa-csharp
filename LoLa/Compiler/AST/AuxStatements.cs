@@ -95,4 +95,22 @@ namespace LoLa.Compiler.AST
 
         public Expression Value { get; }
     }
+
+    public sealed class SubScope : Statement
+    {
+        public SubScope(IReadOnlyList<Statement> body)
+        {
+            this.Body = body.ToArray();
+        }
+
+        public override void Emit(CodeWriter writer)
+        {
+            writer.EnterScope();
+            foreach (var item in this.Body)
+                item.Emit(writer);
+            writer.LeaveScope();
+        }
+        
+        public IReadOnlyList<Statement> Body { get; }
+    }
 }

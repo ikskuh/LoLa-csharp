@@ -30,9 +30,9 @@
 %namespace LoLa.Compiler
 
 %type <Program> program
-%type <Statement> statement decl ass for while conditional expression return
+%type <Statement> statement body decl ass for while conditional expression return
 %type <Function> function
-%type <Statements> stmtlist body
+%type <Statements> stmtlist
 %type <Expression> expr_0 expr_1 expr_2 expr_3 expr_4
 %type <NameList> plist
 %type <RValue> rvalue call array
@@ -54,14 +54,14 @@ function	: FUNCTION IDENT ROUND_O plist ROUND_C body
 				$$ = new AST.Function();
 				$$.Name = $2;
 				$$.Parameters = $4;
-				$$.Statements = $6;
+				$$.Body = $6;
 			}
 			| FUNCTION IDENT ROUND_O ROUND_C body 
 			{
 				$$ = new AST.Function();
 				$$.Name = $2;
 				$$.Parameters = new List<string>();
-				$$.Statements = $5;
+				$$.Body = $5;
 			}
 			;
 
@@ -77,7 +77,7 @@ plist       : IDENT
 			}
 			;
 
-body		: CURLY_O stmtlist CURLY_C					{ $$ = $2; }
+body		: CURLY_O stmtlist CURLY_C					{ $$ = new SubScope($2); }
 			;
 
 stmtlist	: /* */										{ $$ = new List<AST.Statement>();  }

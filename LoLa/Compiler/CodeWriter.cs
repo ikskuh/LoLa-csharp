@@ -24,6 +24,9 @@ namespace LoLa.Compiler
 
         }
 
+        public void EnterScope() => Emit(new PushScope());
+        public void LeaveScope() => Emit(new PopScope());
+
         public void DefineLabel(Label label)
         {
             label.Location = this.code.Count;

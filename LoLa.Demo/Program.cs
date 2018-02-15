@@ -16,7 +16,9 @@ namespace LoLa.Demo
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1());
+
+            var computer = new BasicComputer();
+            Application.Run();
         }
     }
 }

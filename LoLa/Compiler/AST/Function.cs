@@ -13,13 +13,12 @@ namespace LoLa.Compiler.AST
 
         public List<string> Parameters = new List<string>();
 
-        public List<Statement> Statements = new List<Statement>();
+        public virtual Statement Body { get; set; }
 
         public ScriptFunction Compile(LoLa.Runtime.LoLaObject env, bool isTapFunction)
         {
             var code = new CodeWriter();
-            foreach (var item in this.Statements)
-                item.Emit(code);
+            Body.Emit(code);
             return new ScriptFunction(env, this.Name, this.Parameters.ToArray(), code, isTapFunction);
         }
     }

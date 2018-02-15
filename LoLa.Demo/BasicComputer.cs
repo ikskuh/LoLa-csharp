@@ -21,11 +21,14 @@ namespace LoLa.Demo
 		FunctionCall tapFun;
 		string tapCode;
 
+        private readonly CodeEditorForm editor;
+
 		public BasicComputer()
 		{		
 			this.timer = new Timer
 			{
 				Interval = 10,
+                Enabled = true,
 			};
 			this.timer.Tick += Timer_Tick;
 
@@ -34,56 +37,9 @@ namespace LoLa.Demo
 			
 			this.display.MouseClick += (s,e) =>
 			{
-				if(e.Button != MouseButtons.Right)
-					return;
-				var frm = new Form
-				{
-					Text = "Code Editor (" + display.Text + ")",
-					ClientSize = new Size(640, 480),
-					StartPosition = FormStartPosition.CenterParent
-				};
-				var edit = new TextBox
-				{
-					Multiline = true,
-					Font = new Font(FontFamily.GenericMonospace, 16.0f),
-					Dock = DockStyle.Fill,
-					Text = this.tapCode,
-					AcceptsTab = true,
-					AcceptsReturn = true,
-				};
-				
-				edit.KeyUp += (se,ea) =>
-				{
-					if(ea.Control && ea.KeyCode == Keys.R)
-					{
-						ea.Handled = true;
-						frm.DialogResult = DialogResult.OK;
-					}
-					if(ea.KeyCode == Keys.Escape)
-						frm.DialogResult = DialogResult.Cancel;
-				};
-				
-				frm.Controls.Add(edit);
-				
-				this.timer.Stop();
-				
-				if(frm.ShowDialog(this.display) != DialogResult.OK)
-					return;
-				
-				try
-				{
-					var pgm = Compiler.Compiler.Compile(edit.Text);
-					pgm.InstantiateInto(this, true);
-					
-					this.tapFun = this.Tap();
-					this.timer.Start();
-					
-					this.tapCode = edit.Text;
-				}
-				catch(Exception ex)
-				{
-					MessageBox.Show(ex.ToString());
-				}
+                if (e.Button != MouseButtons.Right)
+                    return;
+                this.editor.Show();
 			};
 
 			this.display.KeyDown += (s, e) =>
@@ -102,7 +58,7 @@ namespace LoLa.Demo
 			{
 				if (!this.allowInput)
 					return;
-				if (e.KeyChar == '\n')
+				if (e.KeyChar == '\r')
 				{
 					this.inputValid = true;
 				}
@@ -113,8 +69,30 @@ namespace LoLa.Demo
 				}
 				e.Handled = true;
 			};
+            
+            this.editor = new CodeEditorForm
+            {
+                Owner = this.display
+            };
+            this.editor.Run += (s, e) =>
+            {   
+                try
+                {
+                    var pgm = Compiler.Compiler.Compile(this.editor.Code);
+                    pgm.InstantiateInto(this, true);
 
-			RegisterFunction("PrintLn", args =>
+                    this.tapFun = this.Tap();
+                    this.timer.Start();
+
+                    this.tapCode = this.editor.Code;
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(this.editor, ex.ToString());
+                }
+            };
+
+            RegisterFunction("PrintLn", args =>
 			{
 				this.display.WriteLine(string.Join("", args));
 				return Value.Null;

@@ -17,7 +17,11 @@ namespace LoLa.Compiler.AST
 
 		public List<Function> Functions = new List<Function>();
 
-		public void InstantiateInto(LoLaObject obj, bool removePreviousScripts)
+        public List<Statement> Statements = new List<Statement>();
+
+        public override Statement Body { get => new SubScope(this.Statements); set => throw new NotSupportedException("Main Program does not support setting the body."); }
+
+        public void InstantiateInto(LoLaObject obj, bool removePreviousScripts)
 		{
 			if (removePreviousScripts)
 			{

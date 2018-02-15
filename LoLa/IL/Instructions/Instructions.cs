@@ -3,12 +3,23 @@ using System;
 using System.Collections.Generic;
 namespace LoLa.IL.Instructions
 {
+    public sealed class PushScope : Instruction
+    {
+        public override void Execute(Context context) => context.PushScope();
+
+        public override string ToString() => "scope_push";
+    }
+
+    public sealed class PopScope : Instruction
+    {
+        public override void Execute(Context context) => context.PopScope();
+
+        public override string ToString() => "scope_pop";
+    }
+
     public sealed class DeclareVariable : Instruction
     {
-        public override void Execute(Stack<Value> stack, Scope scope, ref int ip, ref LoLa.Runtime.FunctionCall branch)
-        {
-            scope.DeclareVariable(Variable);
-        }
+        public override void Execute(Context context) => context.Scope.DeclareVariable(Variable);
 
         public string Variable { get; set; }
 
@@ -17,9 +28,9 @@ namespace LoLa.IL.Instructions
 
     public sealed class StoreVariable : Instruction
 	{
-		public override void Execute(Stack<Value> stack, Scope scope, ref int ip, ref LoLa.Runtime.FunctionCall branch)
+		public override void Execute(Context context)
 		{
-			scope[Variable] = stack.Pop();
+			context.Scope[Variable] = context.Stack.Pop();
 		}
 
 		public string Variable { get; set; }
@@ -29,9 +40,9 @@ namespace LoLa.IL.Instructions
 
 	public sealed class LoadVariable : Instruction
 	{
-		public override void Execute(Stack<Value> stack, Scope scope, ref int ip, ref LoLa.Runtime.FunctionCall branch)
+		public override void Execute(Context context)
 		{
-			stack.Push(scope[Variable]);
+			context.Stack.Push(context.Scope[Variable]);
 		}
 
 		public string Variable { get; set; }
@@ -42,9 +53,9 @@ namespace LoLa.IL.Instructions
 
 	public sealed class PushValue : Instruction
 	{
-		public override void Execute(Stack<Value> stack, Scope scope, ref int ip, ref LoLa.Runtime.FunctionCall branch)
+		public override void Execute(Context context)
 		{
-			stack.Push(Value);
+			context.Stack.Push(Value);
 		}
 
 		public Value Value { get; set; }
@@ -55,12 +66,12 @@ namespace LoLa.IL.Instructions
 
 	public sealed class ArrayPack : Instruction
 	{
-		public override void Execute(Stack<Value> stack, Scope scope, ref int ip, ref LoLa.Runtime.FunctionCall branch)
+		public override void Execute(Context context)
 		{
 			var array = new LoLa.Runtime.Array();
 			for (int i = 0; i < array.Count; i++)
-				array[i] = stack.Pop();
-			stack.Push(array);
+				array[i] = context.Stack.Pop();
+			context.Stack.Push(array);
 		}
 
 		public int Size { get; set; }
@@ -71,15 +82,15 @@ namespace LoLa.IL.Instructions
 
 	public sealed class Call : Instruction
 	{
-        public override void Execute(Stack<Value> stack, Scope scope, ref int ip, ref LoLa.Runtime.FunctionCall branch)
+        public override void Execute(Context context)
         {
-            Function fun = scope.GetFunction(this.Function);
+            Function fun = context.Scope.GetFunction(this.Function);
 
             var args = new Value[this.ArgumentCount];
             for (int i = 0; i < args.Length; i++)
-                args[i] = stack.Pop();
+                args[i] = context.Stack.Pop();
 
-            branch = fun.Call(args);
+            context.EnterFunction(fun.Call(args));
         }
 
         public string Function { get; set; }
@@ -90,16 +101,16 @@ namespace LoLa.IL.Instructions
 
     public sealed class CallObject : Instruction
     {
-        public override void Execute(Stack<Value> stack, Scope scope, ref int ip, ref LoLa.Runtime.FunctionCall branch)
+        public override void Execute(Context context)
         {
-            var obj = stack.Pop().ToObject();
+            var obj = context.Stack.Pop().ToObject();
             var fun = obj.GetFunction(this.Function);
             
             var args = new Value[this.ArgumentCount];
             for (int i = 0; i < args.Length; i++)
-                args[i] = stack.Pop();
+                args[i] = context.Stack.Pop();
 
-            branch = fun.Call(args);
+            context.EnterFunction(fun.Call(args));
         }
 
         public string Function { get; set; }
@@ -111,9 +122,9 @@ namespace LoLa.IL.Instructions
 
     public sealed class Pop : Instruction
 	{
-		public override void Execute(Stack<Value> stack, Scope scope, ref int ip, ref LoLa.Runtime.FunctionCall branch)
+		public override void Execute(Context context)
 		{
-			stack.Pop();
+			context.Stack.Pop();
         }
 
         public override string ToString() => $"pop";
@@ -121,10 +132,10 @@ namespace LoLa.IL.Instructions
     
 	public sealed class Add : Instruction
 	{
-		public override void Execute(Stack<Value> stack, Scope scope, ref int ip, ref LoLa.Runtime.FunctionCall branch)
+		public override void Execute(Context context)
 		{
-			var lhs = stack.Pop();
-			var rhs = stack.Pop();
+			var lhs = context.Stack.Pop();
+			var rhs = context.Stack.Pop();
 
 			switch (lhs.Type)
 			{
@@ -135,14 +146,14 @@ namespace LoLa.IL.Instructions
 							result.Add(val);
 						foreach (var val in rhs.ToArray())
 							result.Add(val);
-						stack.Push(result);
+                        context.Stack.Push(result);
 						break;
 					}
 				case LoLa.Runtime.Type.Number:
-					stack.Push(lhs.ToNumber() + rhs.ToNumber());
+                    context.Stack.Push(lhs.ToNumber() + rhs.ToNumber());
 					break;
 				case LoLa.Runtime.Type.String:
-					stack.Push(lhs.ToString() + rhs.ToString());
+                    context.Stack.Push(lhs.ToString() + rhs.ToString());
 					break;
 				default:
 					throw new NotSupportedException($"Addition for {lhs.Type} not supported!");
@@ -155,11 +166,11 @@ namespace LoLa.IL.Instructions
 
 	public sealed class Subtract : Instruction
 	{
-		public override void Execute(Stack<Value> stack, Scope scope, ref int ip, ref LoLa.Runtime.FunctionCall branch)
+		public override void Execute(Context context)
 		{
-			var lhs = stack.Pop();
-			var rhs = stack.Pop();
-			stack.Push(lhs.ToNumber() - rhs.ToNumber());
+			var lhs = context.Stack.Pop();
+			var rhs = context.Stack.Pop();
+            context.Stack.Push(lhs.ToNumber() - rhs.ToNumber());
         }
 
         public override string ToString() => $"sub";
@@ -167,11 +178,11 @@ namespace LoLa.IL.Instructions
 
 	public sealed class Multiply : Instruction
 	{
-		public override void Execute(Stack<Value> stack, Scope scope, ref int ip, ref LoLa.Runtime.FunctionCall branch)
+		public override void Execute(Context context)
 		{
-			var lhs = stack.Pop();
-			var rhs = stack.Pop();
-			stack.Push(lhs.ToNumber() * rhs.ToNumber());
+			var lhs = context.Stack.Pop();
+			var rhs = context.Stack.Pop();
+			context.Stack.Push(lhs.ToNumber() * rhs.ToNumber());
         }
 
         public override string ToString() => $"mul";
@@ -179,11 +190,11 @@ namespace LoLa.IL.Instructions
 
 	public sealed class Divide : Instruction
 	{
-		public override void Execute(Stack<Value> stack, Scope scope, ref int ip, ref LoLa.Runtime.FunctionCall branch)
+		public override void Execute(Context context)
 		{
-			var lhs = stack.Pop();
-			var rhs = stack.Pop();
-			stack.Push(lhs.ToNumber() / rhs.ToNumber());
+			var lhs = context.Stack.Pop();
+			var rhs = context.Stack.Pop();
+			context.Stack.Push(lhs.ToNumber() / rhs.ToNumber());
         }
 
         public override string ToString() => $"div";
@@ -191,11 +202,11 @@ namespace LoLa.IL.Instructions
 
 	public sealed class Modoluo : Instruction
 	{
-		public override void Execute(Stack<Value> stack, Scope scope, ref int ip, ref LoLa.Runtime.FunctionCall branch)
+		public override void Execute(Context context)
 		{
-			var lhs = stack.Pop();
-			var rhs = stack.Pop();
-			stack.Push(lhs.ToNumber() % rhs.ToNumber());
+			var lhs = context.Stack.Pop();
+			var rhs = context.Stack.Pop();
+			context.Stack.Push(lhs.ToNumber() % rhs.ToNumber());
         }
 
         public override string ToString() => $"mod";
@@ -203,9 +214,9 @@ namespace LoLa.IL.Instructions
 
 	public sealed class Negate : Instruction
 	{
-		public override void Execute(Stack<Value> stack, Scope scope, ref int ip, ref LoLa.Runtime.FunctionCall branch)
+		public override void Execute(Context context)
 		{
-			stack.Push(-stack.Pop().ToNumber());
+			context.Stack.Push(-context.Stack.Pop().ToNumber());
         }
 
         public override string ToString() => $"negate";
@@ -213,11 +224,11 @@ namespace LoLa.IL.Instructions
 
 	public sealed class And : Instruction
 	{
-		public override void Execute(Stack<Value> stack, Scope scope, ref int ip, ref LoLa.Runtime.FunctionCall branch)
+		public override void Execute(Context context)
 		{
-			var lhs = stack.Pop();
-			var rhs = stack.Pop();
-			stack.Push(lhs.ToBoolean() & rhs.ToBoolean());
+			var lhs = context.Stack.Pop();
+			var rhs = context.Stack.Pop();
+			context.Stack.Push(lhs.ToBoolean() & rhs.ToBoolean());
         }
 
         public override string ToString() => $"and";
@@ -225,11 +236,11 @@ namespace LoLa.IL.Instructions
 
 	public sealed class Or : Instruction
 	{
-		public override void Execute(Stack<Value> stack, Scope scope, ref int ip, ref LoLa.Runtime.FunctionCall branch)
+		public override void Execute(Context context)
 		{
-			var lhs = stack.Pop();
-			var rhs = stack.Pop();
-			stack.Push(lhs.ToBoolean() | rhs.ToBoolean());
+			var lhs = context.Stack.Pop();
+			var rhs = context.Stack.Pop();
+			context.Stack.Push(lhs.ToBoolean() | rhs.ToBoolean());
         }
 
         public override string ToString() => $"or";
@@ -237,10 +248,10 @@ namespace LoLa.IL.Instructions
 
 	public sealed class Invert : Instruction
 	{
-		public override void Execute(Stack<Value> stack, Scope scope, ref int ip, ref LoLa.Runtime.FunctionCall branch)
+		public override void Execute(Context context)
 		{
-			var lhs = stack.Pop();
-			stack.Push(!lhs.ToBoolean());
+			var lhs = context.Stack.Pop();
+			context.Stack.Push(!lhs.ToBoolean());
         }
 
         public override string ToString() => $"invert";
@@ -248,11 +259,11 @@ namespace LoLa.IL.Instructions
 
 	public sealed class Equals : Instruction
 	{
-		public override void Execute(Stack<Value> stack, Scope scope, ref int ip, ref LoLa.Runtime.FunctionCall branch)
+		public override void Execute(Context context)
 		{
-			var lhs = stack.Pop();
-			var rhs = stack.Pop();
-			stack.Push(lhs.Equals(rhs));
+			var lhs = context.Stack.Pop();
+			var rhs = context.Stack.Pop();
+			context.Stack.Push(lhs.Equals(rhs));
         }
 
         public override string ToString() => $"equals";
@@ -260,11 +271,11 @@ namespace LoLa.IL.Instructions
 
 	public sealed class Differs : Instruction
 	{
-		public override void Execute(Stack<Value> stack, Scope scope, ref int ip, ref LoLa.Runtime.FunctionCall branch)
+		public override void Execute(Context context)
 		{
-			var lhs = stack.Pop();
-			var rhs = stack.Pop();
-			stack.Push(!lhs.Equals(rhs));
+			var lhs = context.Stack.Pop();
+			var rhs = context.Stack.Pop();
+			context.Stack.Push(!lhs.Equals(rhs));
         }
 
         public override string ToString() => $"differs";
@@ -272,11 +283,11 @@ namespace LoLa.IL.Instructions
 
 	public sealed class LessThan : Instruction
 	{
-		public override void Execute(Stack<Value> stack, Scope scope, ref int ip, ref LoLa.Runtime.FunctionCall branch)
+		public override void Execute(Context context)
 		{
-			var lhs = stack.Pop();
-			var rhs = stack.Pop();
-			stack.Push(lhs.ToNumber() < rhs.ToNumber());
+			var lhs = context.Stack.Pop();
+			var rhs = context.Stack.Pop();
+			context.Stack.Push(lhs.ToNumber() < rhs.ToNumber());
         }
 
         public override string ToString() => $"less_than";
@@ -284,11 +295,11 @@ namespace LoLa.IL.Instructions
 
 	public sealed class LessOrEqual : Instruction
 	{
-		public override void Execute(Stack<Value> stack, Scope scope, ref int ip, ref LoLa.Runtime.FunctionCall branch)
+		public override void Execute(Context context)
 		{
-			var lhs = stack.Pop();
-			var rhs = stack.Pop();
-			stack.Push(lhs.ToNumber() <= rhs.ToNumber());
+			var lhs = context.Stack.Pop();
+			var rhs = context.Stack.Pop();
+			context.Stack.Push(lhs.ToNumber() <= rhs.ToNumber());
         }
 
         public override string ToString() => $"less_or_equal";
@@ -296,22 +307,22 @@ namespace LoLa.IL.Instructions
 
 	public sealed class MoreThan : Instruction
 	{
-		public override void Execute(Stack<Value> stack, Scope scope, ref int ip, ref LoLa.Runtime.FunctionCall branch)
+		public override void Execute(Context context)
 		{
-			var lhs = stack.Pop();
-			var rhs = stack.Pop();
-			stack.Push(lhs.ToNumber() > rhs.ToNumber());
+			var lhs = context.Stack.Pop();
+			var rhs = context.Stack.Pop();
+			context.Stack.Push(lhs.ToNumber() > rhs.ToNumber());
         }
 
         public override string ToString() => $"more_than";
     }
 	public sealed class MoreOrEqual : Instruction
 	{
-		public override void Execute(Stack<Value> stack, Scope scope, ref int ip, ref LoLa.Runtime.FunctionCall branch)
+		public override void Execute(Context context)
 		{
-			var lhs = stack.Pop();
-			var rhs = stack.Pop();
-			stack.Push(lhs.ToNumber() >= rhs.ToNumber());
+			var lhs = context.Stack.Pop();
+			var rhs = context.Stack.Pop();
+			context.Stack.Push(lhs.ToNumber() >= rhs.ToNumber());
         }
 
         public override string ToString() => $"more_or_equal";
@@ -320,9 +331,9 @@ namespace LoLa.IL.Instructions
 
 	public sealed class Jump : Instruction
 	{
-		public override void Execute(Stack<Value> stack, Scope scope, ref int ip, ref LoLa.Runtime.FunctionCall branch)
+		public override void Execute(Context context)
 		{
-			ip = Target;
+			context.IP = Target;
 		}
 
 		public int Target { get; set; }
@@ -332,10 +343,10 @@ namespace LoLa.IL.Instructions
 
 	public sealed class JumpWhenFalse : Instruction
 	{
-		public override void Execute(Stack<Value> stack, Scope scope, ref int ip, ref LoLa.Runtime.FunctionCall branch)
+		public override void Execute(Context context)
 		{
-			if (stack.Pop().ToBoolean() == false)
-				ip = Target;
+			if (context.Stack.Pop().ToBoolean() == false)
+				context.IP = Target;
 		}
 
 		public int Target { get; set; }
@@ -345,10 +356,10 @@ namespace LoLa.IL.Instructions
 
 	public sealed class MakeIterator : Instruction
 	{
-		public override void Execute(Stack<Value> stack, Scope scope, ref int ip, ref LoLa.Runtime.FunctionCall branch)
+		public override void Execute(Context context)
 		{
-			var array = stack.Pop().ToArray();
-			stack.Push(new Value(array.GetEnumerator()));
+			var array = context.Stack.Pop().ToArray();
+			context.Stack.Push(new Value(array.GetEnumerator()));
         }
 
         public override string ToString() => $"make_iterator";
@@ -356,13 +367,13 @@ namespace LoLa.IL.Instructions
 
 	public sealed class IteratorNext : Instruction
 	{
-		public override void Execute(Stack<Value> stack, Scope scope, ref int ip, ref LoLa.Runtime.FunctionCall branch)
+		public override void Execute(Context context)
 		{
-			var e = stack.Peek().ToEnumerator();
+			var e = context.Stack.Peek().ToEnumerator();
 			var next = e.MoveNext();
 			if(next)
-				stack.Push(e.Current);
-			stack.Push(next);
+				context.Stack.Push(e.Current);
+			context.Stack.Push(next);
         }
 
         public override string ToString() => $"iterator_next";
@@ -370,11 +381,11 @@ namespace LoLa.IL.Instructions
 
 	public sealed class ArrayStore : Instruction
 	{
-		public override void Execute(Stack<Value> stack, Scope scope, ref int ip, ref LoLa.Runtime.FunctionCall branch)
+		public override void Execute(Context context)
 		{
-			var array = stack.Pop().ToArray();
-			var index = stack.Pop().ToNumber();
-			var value = stack.Pop();
+			var array = context.Stack.Pop().ToArray();
+			var index = context.Stack.Pop().ToNumber();
+			var value = context.Stack.Pop();
 			array[(int)index] = value;
         }
 
@@ -383,11 +394,11 @@ namespace LoLa.IL.Instructions
 
 	public sealed class ArrayLoad : Instruction
 	{
-		public override void Execute(Stack<Value> stack, Scope scope, ref int ip, ref LoLa.Runtime.FunctionCall branch)
+		public override void Execute(Context context)
         {
-            var array = stack.Pop().ToArray();
-            var index = stack.Pop().ToNumber();
-            stack.Push(array[(int)index]);
+            var array = context.Stack.Pop().ToArray();
+            var index = context.Stack.Pop().ToNumber();
+            context.Stack.Push(array[(int)index]);
         }
 
         public override string ToString() => $"array_load";
@@ -395,9 +406,9 @@ namespace LoLa.IL.Instructions
 
 	public sealed class Return : Instruction
 	{
-		public override void Execute(Stack<Value> stack, Scope scope, ref int ip, ref LoLa.Runtime.FunctionCall branch)
+		public override void Execute(Context context)
 		{
-			ip = -1;
+			context.IP = -1;
 		}
 
         public override string ToString() => $"return";

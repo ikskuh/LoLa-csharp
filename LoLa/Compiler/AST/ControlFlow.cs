@@ -7,17 +7,17 @@ namespace LoLa.Compiler.AST
 {
     public sealed class IfElse : Statement
     {
-        public IfElse(Expression condition, IReadOnlyList<Statement> trueBody) :
+        public IfElse(Expression condition, Statement trueBody) :
             this(condition, trueBody, null)
         {
 
         }
 
-        public IfElse(Expression condition, IReadOnlyList<Statement> trueBody, IReadOnlyList<Statement> falseBody)
+        public IfElse(Expression condition, Statement trueBody, Statement falseBody)
         {
             this.Condition = condition;
-            this.TrueBody = trueBody.ToArray();
-            this.FalseBody = falseBody?.ToArray();
+            this.TrueBody = trueBody;
+            this.FalseBody = falseBody;
         }
 
         public override void Emit(CodeWriter writer)
@@ -29,8 +29,7 @@ namespace LoLa.Compiler.AST
             {
                 // single body
                 writer.JumpWhenFalse(endLabel);
-                foreach (var item in TrueBody)
-                    item.Emit(writer);
+                TrueBody.Emit(writer);
             }
             else
             {
@@ -38,29 +37,27 @@ namespace LoLa.Compiler.AST
                 var falseLabel = new Label();
 
                 writer.JumpWhenFalse(falseLabel);
-                foreach (var item in TrueBody)
-                    item.Emit(writer);
+                TrueBody.Emit(writer);
                 writer.Jump(endLabel);
 
                 writer.DefineLabel(falseLabel);
 
-                foreach (var item in FalseBody)
-                    item.Emit(writer);
+                FalseBody.Emit(writer);
             }
             writer.DefineLabel(endLabel);
         }
 
         public Expression Condition { get; }
-        public IReadOnlyList<Statement> TrueBody { get; }
-        public IReadOnlyList<Statement> FalseBody { get; }
+        public Statement TrueBody { get; }
+        public Statement FalseBody { get; }
     }
 
     public sealed class WhileLoop : Statement
     {
-        public WhileLoop(Expression condition, IReadOnlyList<Statement> body)
+        public WhileLoop(Expression condition, Statement body)
         {
             this.Condition = condition;
-            this.Body = body.ToArray();
+            this.Body = body;
         }
 
         public override void Emit(CodeWriter writer)
@@ -73,33 +70,33 @@ namespace LoLa.Compiler.AST
             this.Condition.Emit(writer);
             writer.JumpWhenFalse(loopEnd);
 
-            foreach(var item in this.Body)
-                item.Emit(writer);
-            
+            this.Body.Emit(writer);
+
             writer.Jump(loopBegin);
             writer.DefineLabel(loopEnd);
         }
 
         public Expression Condition { get; }
-        public IReadOnlyList<Statement> Body { get; }
+        public Statement Body { get; }
     }
 
     public sealed class ForLoop : Statement
     {
-        public ForLoop(string variable, Expression array, IReadOnlyList<Statement> body)
+        public ForLoop(string variable, Expression array, Statement body)
         {
             this.Variable = variable;
             this.Array = array;
-            this.Body = body?.ToArray();
+            this.Body = body;
         }
 
         public override void Emit(CodeWriter writer)
         {
             var bodyStart = new Label();
             var bodyEnd = new Label();
-            
+
+            writer.EnterScope();
             writer.DeclareVariable(this.Variable);
-            
+
             this.Array.Emit(writer);
 
             writer.MakeIterator(); // pops array, pushes array iterator value
@@ -111,17 +108,17 @@ namespace LoLa.Compiler.AST
             writer.JumpWhenFalse(bodyEnd);
 
             writer.Store(this.Variable);
-            
-            foreach (var item in this.Body)
-                item.Emit(writer);
+
+            this.Body.Emit(writer);
 
             writer.Jump(bodyStart);
             writer.DefineLabel(bodyEnd);
             writer.Pop();
+            writer.LeaveScope();
         }
 
         public string Variable { get; }
         public Expression Array { get; }
-        public IReadOnlyList<Statement> Body { get; }
+        public Statement Body { get; }
     }
 }
