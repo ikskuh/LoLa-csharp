@@ -12,7 +12,16 @@ namespace LoLa.Runtime
 
         private Dictionary<string, Function> functions = new Dictionary<string, Function>();
 
-        public LoLaObject()
+        private static readonly Scope ultraGlobals;
+
+        static LoLaObject()
+        {
+            ultraGlobals = new Scope();
+            ultraGlobals.DeclareVariable("true", true);
+            ultraGlobals.DeclareVariable("false", false);
+        }
+
+        public LoLaObject() : base(ultraGlobals)
         {
             this.CreateDefaultLibrary();
         }
@@ -166,6 +175,10 @@ namespace LoLa.Runtime
             }, 2));
         }
 
+#if NETFX_35
+        public IDictionary<string, Function> Functions => this.functions;
+#else
         public IReadOnlyDictionary<string, Function> Functions => this.functions;
+#endif
     }
 }

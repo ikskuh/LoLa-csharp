@@ -98,7 +98,11 @@ namespace LoLa.Compiler.AST
 
     public sealed class SubScope : Statement
     {
+#if NETFX_35
+        public SubScope(IEnumerable<Statement> body)
+#else
         public SubScope(IReadOnlyList<Statement> body)
+#endif
         {
             this.Body = body.ToArray();
         }
@@ -110,7 +114,11 @@ namespace LoLa.Compiler.AST
                 item.Emit(writer);
             writer.LeaveScope();
         }
-        
+
+#if NETFX_35
+        public Statement[] Body { get; }
+#else
         public IReadOnlyList<Statement> Body { get; }
+#endif
     }
 }

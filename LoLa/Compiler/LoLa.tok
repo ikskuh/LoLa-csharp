@@ -63,7 +63,8 @@ NUMBER     := \d+(\.\d+)?
 STRING     := "(?:\\"|.)*?"
 
 # Must not start with a number, but is allowed to any word character
-IDENT      := [\w-[\d]]\w*
+# IDENT      := [\w-[\d]]\w*
+IDENT      := \w\w*
 
 # Post Processings
 

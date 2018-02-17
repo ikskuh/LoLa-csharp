@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 using LoLa.IL;
 using LoLa.IL.Instructions;
@@ -11,7 +10,11 @@ using LoLa.Runtime;
 
 namespace LoLa.Compiler
 {
+#if NETFX_35
+    public class CodeWriter : IEnumerable<Instruction>
+#else
     public class CodeWriter : IReadOnlyList<Instruction>
+#endif
     {
         private readonly List<Instruction> code = new List<Instruction>();
 
@@ -154,12 +157,12 @@ namespace LoLa.Compiler
         {
             Emit(new Or());
         }
-        
+
         public void Invert()
         {
             Emit(new Invert());
         }
-        
+
         public void Equals()
         {
             Emit(new Equals());
@@ -179,7 +182,7 @@ namespace LoLa.Compiler
         {
             Emit(new LessOrEqual());
         }
-        
+
         public void MoreThan()
         {
             Emit(new MoreThan());
@@ -211,14 +214,9 @@ namespace LoLa.Compiler
             Emit(new Return());
         }
 
-        public IEnumerator<Instruction> GetEnumerator()
-        {
-            return ((IReadOnlyList<Instruction>)code).GetEnumerator();
-        }
+        public IEnumerator<Instruction> GetEnumerator() => code.GetEnumerator();
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return ((IReadOnlyList<Instruction>)code).GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => code.GetEnumerator();
+
     }
 }

@@ -7,10 +7,14 @@ namespace LoLa.IL
 {
 	public sealed class ScriptFunction : Function
 	{
-        private readonly string[] @params;
-        
+        private readonly List<string> @params;
+
+#if NETFX_35
+        public ScriptFunction(LoLa.Runtime.LoLaObject env, string name, string[] args, IEnumerable<Instruction> code, bool isTapFunction) :
+#else
         public ScriptFunction(LoLa.Runtime.LoLaObject env, string name, string[] args, IReadOnlyList<Instruction> code, bool isTapFunction) :
-			base(args.Length)
+#endif
+            base(args.Length)
 		{
 			if(env == null)
 				throw new ArgumentNullException(nameof(env));
@@ -20,10 +24,10 @@ namespace LoLa.IL
 				throw new ArgumentNullException(nameof(code));
 			this.Environment = env;
 			this.Name = name;
-			this.@params = args.ToArray();
+			this.@params = args.ToList();
 			this.Code = code.ToArray();
             this.IsTapFunction = isTapFunction;
-            if (this.IsTapFunction && (this.@params.Length > 0))
+            if (this.IsTapFunction && (this.@params.Count > 0))
                 throw new InvalidOperationException("Tap function must not have arguments!");
 		}
 
@@ -31,11 +35,15 @@ namespace LoLa.IL
 
         public string Name { get; }
 
-		public IReadOnlyList<Instruction> Code { get; }
-		
+#if NETFX_35
+        public Instruction[] Code { get; }
+		public List<string> Parameters => this.@params;
+#else
+        public IReadOnlyList<Instruction> Code { get; }
 		public IReadOnlyList<string> Parameters => this.@params;
-		
-		public LoLa.Runtime.LoLaObject Environment { get; }
+#endif
+
+        public LoLa.Runtime.LoLaObject Environment { get; }
 
         public bool IsTapFunction { get; }
 

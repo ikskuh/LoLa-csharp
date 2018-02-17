@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace LoLa.Compiler.AST
 {
@@ -104,7 +103,7 @@ namespace LoLa.Compiler.AST
         {
             this.RightHandSide.Emit(writer);
             this.LeftHandSide.Emit(writer);
-            switch(this.Operator)
+            switch (this.Operator)
             {
                 case "+": writer.Add(); break;
                 case "-": writer.Subtract(); break;
@@ -120,7 +119,7 @@ namespace LoLa.Compiler.AST
                 case "!=": writer.Differs(); break;
                 case ">=": writer.MoreOrEqual(); break;
                 case "<=": writer.LessOrEqual(); break;
-                
+
                 default: throw new NotSupportedException($"{Operator} is not a supported binary operator.");
             }
         }
@@ -160,31 +159,39 @@ namespace LoLa.Compiler.AST
 
     public sealed class FunctionCall : RValue
     {
-        public FunctionCall(string name) : this(null, name, new List<Expression>())
+        public FunctionCall(string name) : this(null, name, new Expression[0])
         {
 
         }
 
+#if NETFX_35
+        public FunctionCall(string name, IEnumerable<Expression> args) : this(null, name, args)
+#else
         public FunctionCall(string name, IReadOnlyList<Expression> args) : this(null, name, args)
+#endif
         {
 
         }
 
-        public FunctionCall(string objectvar, string name) : this(objectvar, name, new List<Expression>())
+        public FunctionCall(string objectvar, string name) : this(objectvar, name, new Expression[0])
         {
 
         }
 
+#if NETFX_35
+        public FunctionCall(string objectvar, string name, IEnumerable<Expression> args)
+#else
         public FunctionCall(string objectvar, string name, IReadOnlyList<Expression> args)
+#endif
         {
             this.ObjectName = objectvar;
             this.Function = name;
-            this.Arguments = args.ToArray();
+            this.Arguments = args.ToList();
         }
 
         public override void Emit(CodeWriter writer)
         {
-            for(int i = (this.Arguments.Count - 1); i >= 0; i--)
+            for (int i = (this.Arguments.Count - 1); i >= 0; i--)
             {
                 this.Arguments[i].Emit(writer);
             }
@@ -202,20 +209,29 @@ namespace LoLa.Compiler.AST
         public string Function { get; }
         public string ObjectName { get; }
 
+#if NETFX_35
+        public List<Expression> Arguments { get; }
+#else
         public IReadOnlyList<Expression> Arguments { get; }
+#endif
     }
 
     public sealed class ArrayLiteral : RValue
     {
-        public ArrayLiteral() : this(new List<Expression>())
+        public ArrayLiteral() : this(new Expression[0])
         {
 
         }
 
+#if NETFX_35
+        public ArrayLiteral(IEnumerable<Expression> items)
+#else
         public ArrayLiteral(IReadOnlyList<Expression> items)
+#endif
         {
-            this.Items = items.ToArray();
+            this.Items = items.ToList();
         }
+
 
         public override void Emit(CodeWriter writer)
         {
@@ -226,6 +242,10 @@ namespace LoLa.Compiler.AST
             writer.ArrayPack(this.Items.Count);
         }
 
+#if NETFX_35
+        public List<Expression> Items { get; }
+#else
         public IReadOnlyList<Expression> Items { get; }
+#endif
     }
 }

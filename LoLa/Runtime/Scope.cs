@@ -7,7 +7,7 @@ namespace LoLa.Runtime
         private readonly Scope shadow;
         protected readonly Dictionary<string, Variable> variables = new Dictionary<string, Variable>();
 
-        protected Scope()
+        protected internal Scope()
         {
             this.shadow = null;
         }

@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace LoLa.Runtime
 {
@@ -7,7 +8,7 @@ namespace LoLa.Runtime
 	{
 		private readonly List<Value> items = new List<Value>();
 
-        public override string ToString() => "[ " + string.Join(", ", this.items) + " ]";
+        public override string ToString() => "[ " + string.Join(", ", this.items.Select(x => x.ToString()).ToArray()) + " ]";
 
         #region IList<Value>
         public Value this[int index]
