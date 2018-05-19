@@ -9,9 +9,8 @@ namespace LoLa.Compiler
 		public static AST.Program Compile(string source, string fileName = "source.lola")
         {
             var parser = new Parser(new Lexer(new StringReader(source), fileName));
-
             if (parser.Parse() == false)
-                throw new InvalidOperationException();
+                throw new InvalidOperationException("Failed to parse source code!");
 
             return parser.Result;
         }

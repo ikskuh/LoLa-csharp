@@ -85,10 +85,16 @@ namespace LoLa.IL.Instructions
         public override void Execute(Context context)
         {
             Function fun = context.Scope.GetFunction(this.Function);
+            Execute(context, fun, this.ArgumentCount);
+        }
 
-            var args = new Value[this.ArgumentCount];
-            for (int i = 0; i < args.Length; i++)
+        internal static void Execute(Context context, Function fun, int argc)
+        {
+            var args = new Value[Math.Max(fun.MinArgumentCount, argc)];
+            for (int i = 0; i < argc; i++)
                 args[i] = context.Stack.Pop();
+            for (int i = argc; i < args.Length; i++)
+                args[i] = Value.Null;
 
             context.EnterFunction(fun.Call(args));
         }
@@ -105,12 +111,7 @@ namespace LoLa.IL.Instructions
         {
             var obj = context.Stack.Pop().ToObject();
             var fun = obj.GetFunction(this.Function);
-            
-            var args = new Value[this.ArgumentCount];
-            for (int i = 0; i < args.Length; i++)
-                args[i] = context.Stack.Pop();
-
-            context.EnterFunction(fun.Call(args));
+            Call.Execute(context, fun, this.ArgumentCount);
         }
 
         public string Function { get; set; }

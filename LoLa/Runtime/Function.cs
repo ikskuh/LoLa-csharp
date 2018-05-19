@@ -20,6 +20,13 @@ namespace LoLa.Runtime
 			this.argc = argc;
 		}
 
+        public int MinArgumentCount => this.argc;
+
+        /// <summary>
+        /// Creates a function call that can evaluate the function result over time.
+        /// </summary>
+        /// <param name="args">Argument list which contains at least MinArgumentCount arguments.</param>
+        /// <returns></returns>
         public abstract FunctionCall Call(Value[] args);
 	}
 }

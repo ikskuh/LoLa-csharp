@@ -14,7 +14,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug</OutputPath>
+    <OutputPath>..\..\Jamantau\Assets\Plugins\LoLa\</OutputPath>
     <DefineConstants>DEBUG;EXPORT_GPPG;NETFX_35</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -52,6 +52,7 @@
     <Compile Include="Compiler\AST\Statement.cs" />
     <Compile Include="Compiler\CodeWriter.cs" />
     <Compile Include="Compiler\Label.cs" />
+    <Compile Include="LoLaException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="IL\Instruction.cs" />
     <Compile Include="IL\ScriptFunction.cs" />
@@ -92,9 +93,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\psilang\CompilerKit\CompilerKit.csproj">
-      <Project>{8EC1C24B-1017-4AC1-BAD1-297EB992C2F5}</Project>
-      <Name>CompilerKit</Name>
+    <ProjectReference Include="..\..\CompilerKit\CompilerKit_3_5\CompilerKit_3_5.csproj">
+      <Project>{c7686044-f579-4ff2-82ac-386bd8a129f7}</Project>
+      <Name>CompilerKit_3_5</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

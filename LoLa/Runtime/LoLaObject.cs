@@ -26,7 +26,7 @@ namespace LoLa.Runtime
             this.CreateDefaultLibrary();
         }
 
-        internal LoLaObject(LoLaObject env) : 
+        internal LoLaObject(LoLaObject env) :
             base(env)
         {
 
@@ -41,7 +41,7 @@ namespace LoLa.Runtime
         {
             this.functions.Add(name, fun);
         }
-        
+
         public bool RemoveFunction(string name) => this.functions.Remove(name);
 
         public void RegisterFunction(string name, NativeFunctionDelegate fun) => RegisterFunction(name, new NativeFunction(fun));
@@ -89,36 +89,40 @@ namespace LoLa.Runtime
 
             this.RegisterFunction("Length", new NativeFunction(arglist =>
             {
-                return arglist[0].ToArray().Count;
+                if (arglist[0].Type == Type.String)
+                    return arglist[0].ToString().Length;
+                if (arglist[0].Type == Type.String)
+                    return arglist[0].ToArray().Count;
+                throw new LoLaException("Length() expects either an array or a string!");
             }, 1));
-            
+
             this.RegisterFunction("InStr", new NativeFunction(arglist =>
             {
-            	var str = arglist[0].ToString();
-            	var sub = arglist[1].ToString();
+                var str = arglist[0].ToString();
+                var sub = arglist[1].ToString();
                 return str.IndexOf(sub, StringComparison.Ordinal);
             }, 3));
-            
+
             this.RegisterFunction("SubStr", new NativeFunction(arglist =>
             {
-            	var str = arglist[0].ToString();
-            	var idx = arglist[1].ToInteger();
-            	var len = (arglist[2].Type == Type.Number) ? arglist[2].ToInteger() : (str.Length - idx);
+                var str = arglist[0].ToString();
+                var idx = arglist[1].ToInteger();
+                var len = (arglist[2].Type == Type.Number) ? arglist[2].ToInteger() : (str.Length - idx);
                 return str.Substring(idx, len);
             }, 3));
-            
+
             this.RegisterFunction("Chr", new NativeFunction(arglist =>
             {
-            	var cp = arglist[0].ToInteger();
+                var cp = arglist[0].ToInteger();
                 return char.ConvertFromUtf32(cp);
             }, 1));
-            
+
             this.RegisterFunction("Asc", new NativeFunction(arglist =>
             {
-            	var txt = arglist[0].ToString();
+                var txt = arglist[0].ToString();
                 return char.ConvertToUtf32(txt, 0);
             }, 1));
-            
+
             this.RegisterFunction("Sqrt", new NativeFunction(arglist =>
             {
                 return Math.Sqrt(arglist[0].ToNumber());

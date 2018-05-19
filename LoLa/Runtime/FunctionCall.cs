@@ -16,6 +16,4 @@ namespace LoLa.Runtime
 
         public Value Result { get; protected set; }
     }
-
-   
 }

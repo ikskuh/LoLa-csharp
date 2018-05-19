@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -39,10 +39,6 @@
     <ProjectReference Include="..\LoLa\LoLa.csproj">
       <Project>{4E9B8C3B-E620-4F15-BD7E-2496C6B645F2}</Project>
       <Name>LoLa</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\psilang\CompilerKit\CompilerKit.csproj">
-      <Project>{8EC1C24B-1017-4AC1-BAD1-297EB992C2F5}</Project>
-      <Name>CompilerKit</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
