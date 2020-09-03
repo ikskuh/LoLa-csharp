@@ -1,6 +1,8 @@
 # *Lo*gic *La*nguage
 Logic Language is a small embeddable scripting language meant for user-based script input in games.
 
+# This repository is archived and will not be worked on in the future. Please checkout https://github.com/MasterQ32/LoLa for the current version
+
 # Examples
 
 Fibonacci sequence (iterative):
